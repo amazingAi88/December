@@ -56,6 +56,17 @@ async function startServer() {
   const app = express();
   app.use(express.json({ limit: '45mb' }));
 
+  app.use('/api', (_req: Request, res: Response, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    if (_req.method === 'OPTIONS') {
+      res.sendStatus(204);
+      return;
+    }
+    next();
+  });
+
   app.get('/api/health', (_req: Request, res: Response) => {
     res.json({
       ok: true,

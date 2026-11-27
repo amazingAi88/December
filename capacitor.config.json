@@ -1,0 +1,11 @@
+{
+  "appId": "com.dubsync.hindidubstudio",
+  "appName": "Hindi Movie Dubbing AI",
+  "webDir": "dist",
+  "android": {
+    "allowMixedContent": true
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}

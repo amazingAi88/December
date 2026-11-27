@@ -20,7 +20,14 @@ import {
   loadPreferences,
   savePreferences,
 } from '../data/studioStorage';
-import { apiTestGeminiSample, checkServerHealth } from '../services/dubbingApi';
+import {
+  apiTestGeminiSample,
+  checkServerHealth,
+  DEFAULT_APK_BACKEND_URL,
+  getConfiguredBackendUrl,
+  isNativeAndroidApp,
+  saveConfiguredBackendUrl,
+} from '../services/dubbingApi';
 import {
   ALL_DIALOGUE_STYLES,
   ALL_DUBBING_SPEED_MODES,
@@ -64,6 +71,9 @@ export function SettingsScreen({ onBack, onOpenSlangDictionary }: SettingsScreen
   } | null>(null);
   const [cloudError, setCloudError] = useState<string | null>(null);
 
+  const [backendUrl, setBackendUrl] = useState(() => getConfiguredBackendUrl());
+  const [backendSavedMsg, setBackendSavedMsg] = useState<string | null>(null);
+
   // Local Slang Tester
   const [slangTestInput, setSlangTestInput] = useState('What the hell are you doing, man?');
   const [slangTestOutput, setSlangTestOutput] = useState<string | null>(null);
@@ -73,6 +83,14 @@ export function SettingsScreen({ onBack, onOpenSlangDictionary }: SettingsScreen
     checkServerHealth().then((h) => setServerHasKey(h.hasGeminiKey));
     setSlangCount(loadSlangConfig().rules.length);
   }, []);
+
+  const handleSaveBackendUrl = () => {
+    const next = saveConfiguredBackendUrl(backendUrl);
+    setBackendUrl(next);
+    setBackendSavedMsg(next ? 'Backend server URL saved.' : 'Using local same-origin /api.');
+    setServerHasKey(null);
+    checkServerHealth().then((h) => setServerHasKey(h.hasGeminiKey));
+  };
 
   const updatePrefs = (patch: Partial<StudioPreferences>) => {
     const next = savePreferences({ ...prefs, ...patch });
@@ -290,6 +308,36 @@ export function SettingsScreen({ onBack, onOpenSlangDictionary }: SettingsScreen
             <p className="mt-0.5 text-[11px] text-[#B3ACC8]">
               Tests live English → Hindi translation and emotion detection via the server-side Gemini LLM.
             </p>
+          </div>
+
+          <div className="rounded-xl border border-[#36304E] bg-[#0D0B14] p-3">
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-mono text-[10px] font-semibold uppercase text-[#38BDF8]">
+                Backend API Server URL ({isNativeAndroidApp() ? 'Android APK Mode' : 'Optional Remote Override'})
+              </span>
+            </div>
+            <div className="mt-1.5 flex gap-2">
+              <input
+                type="url"
+                value={backendUrl}
+                onChange={(e) => {
+                  setBackendUrl(e.target.value);
+                  setBackendSavedMsg(null);
+                }}
+                placeholder={DEFAULT_APK_BACKEND_URL}
+                className="flex-1 rounded-lg border border-[#36304E] bg-[#151221] px-2.5 py-1.5 text-[11px] text-[#F7F4EF] focus:border-[#38BDF8] focus:outline-none"
+              />
+              <button
+                type="button"
+                onClick={handleSaveBackendUrl}
+                className="rounded-lg border border-[#38BDF8]/40 bg-[#0F2D3E] px-3 py-1.5 text-[11px] font-semibold text-[#38BDF8] cursor-pointer"
+              >
+                Save URL
+              </button>
+            </div>
+            {backendSavedMsg && (
+              <p className="mt-1 text-[11px] text-[#34D399]">{backendSavedMsg}</p>
+            )}
           </div>
 
           <input

@@ -1,3 +1,47 @@
+import { Capacitor } from '@capacitor/core';
+
+const BACKEND_URL_STORAGE_KEY = 'dubsync_backend_url_v1';
+export const DEFAULT_APK_BACKEND_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  'https://ais-pre-6vqae5ovghv7f4myqigwba-566481764938.asia-southeast1.run.app';
+
+export function isNativeAndroidApp(): boolean {
+  try {
+    return Capacitor.isNativePlatform();
+  } catch {
+    return false;
+  }
+}
+
+export function getConfiguredBackendUrl(): string {
+  try {
+    const saved = localStorage.getItem(BACKEND_URL_STORAGE_KEY);
+    if (saved && saved.trim()) return saved.trim().replace(/\/+$/, '');
+  } catch {
+    // ignore storage errors
+  }
+  return isNativeAndroidApp() ? DEFAULT_APK_BACKEND_URL.replace(/\/+$/, '') : '';
+}
+
+export function saveConfiguredBackendUrl(url: string): string {
+  const cleaned = url.trim().replace(/\/+$/, '');
+  try {
+    if (cleaned) {
+      localStorage.setItem(BACKEND_URL_STORAGE_KEY, cleaned);
+    } else {
+      localStorage.removeItem(BACKEND_URL_STORAGE_KEY);
+    }
+  } catch {
+    // ignore storage errors
+  }
+  return getConfiguredBackendUrl();
+}
+
+function resolveApiUrl(path: string): string {
+  const base = getConfiguredBackendUrl();
+  return base ? `${base}${path}` : path;
+}
+
 export interface TranscribedSpeakerDto {
   speakerId: string;
   inferredGender: string;
@@ -40,7 +84,7 @@ export interface TestSampleResponse {
 }
 
 async function postJson<T>(url: string, body: unknown, signal?: AbortSignal): Promise<T> {
-  const res = await fetch(url, {
+  const res = await fetch(resolveApiUrl(url), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -54,9 +98,13 @@ async function postJson<T>(url: string, body: unknown, signal?: AbortSignal): Pr
 }
 
 export async function checkServerHealth(): Promise<{ ok: boolean; hasGeminiKey: boolean }> {
-  const res = await fetch('/api/health');
-  if (!res.ok) return { ok: false, hasGeminiKey: false };
-  return (await res.json()) as { ok: boolean; hasGeminiKey: boolean };
+  try {
+    const res = await fetch(resolveApiUrl('/api/health'));
+    if (!res.ok) return { ok: false, hasGeminiKey: false };
+    return (await res.json()) as { ok: boolean; hasGeminiKey: boolean };
+  } catch {
+    return { ok: false, hasGeminiKey: false };
+  }
 }
 
 export async function apiTranscribeChunk(
