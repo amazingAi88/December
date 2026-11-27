@@ -1,0 +1,6 @@
+{
+  "name": "DubSync Studio — SRT Audio & BGM Timeline Sync",
+  "description": "Adjust and fit continuous or concatenated dubbed audio to movie scene SRT dialogue timings with automatic background music gap-filling, multi-format export, and dubbing tool analysis.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

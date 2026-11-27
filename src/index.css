@@ -1,0 +1,80 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --font-display: 'Space Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+    --obsidian-night: #0D0B14;
+    --obsidian-surface: #151221;
+    --obsidian-surface-variant: #1F1B2E;
+    --obsidian-elevated: #28233B;
+    --obsidian-border: #36304E;
+    --saffron-gold: #FFB347;
+    --saffron-deep: #D97706;
+    --saffron-container: #3E290E;
+    --terracotta-coral: #FF6B4A;
+    --electric-cyan: #38BDF8;
+    --emerald-success: #34D399;
+    --warning-amber: #FBBF24;
+    --error-crimson: #F87171;
+    --ivory-text: #F7F4EF;
+    --muted-silver: #B3ACC8;
+    --subtle-slate: #7D7694;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: #0D0B14;
+    color: #F7F4EF;
+    letter-spacing: 0.005em;
+  }
+
+  h1, h2, h3, .font-display {
+    font-family: var(--font-display);
+  }
+
+  .font-mono {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Custom studio scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0D0B14;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #36304E;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #5D557A;
+}
+
+@keyframes wavePulse {
+  0%, 100% {
+    transform: scaleY(0.35);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.animate-wave-bar {
+  animation: wavePulse 0.9s ease-in-out infinite;
+  transform-origin: center;
+}
